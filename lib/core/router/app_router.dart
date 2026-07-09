@@ -14,6 +14,8 @@ import '../../features/employees/presentation/pages/employee_form_page.dart';
 import '../../features/services/presentation/pages/service_list_page.dart';
 import '../../features/services/presentation/pages/service_detail_page.dart';
 import '../../features/services/presentation/pages/service_form_page.dart';
+import '../../features/appointments/presentation/pages/agenda_page.dart';
+import '../../features/appointments/presentation/pages/appointment_form_page.dart';
 
 /// Main application router configuration.
 ///
@@ -51,7 +53,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.dashboard,
       name: 'dashboard',
-      builder: (context, state) => const _PlaceholderPage(title: 'Dashboard (Fase 2)'),
+      builder: (context, state) => const AgendaPage(),
     ),
     GoRoute(
       path: RouteNames.settings,
@@ -110,6 +112,11 @@ final appRouter = GoRouter(
         return ServiceFormPage(serviceId: id);
       },
     ),
+    GoRoute(
+      path: RouteNames.schedule,
+      name: 'schedule',
+      builder: (context, state) => const AppointmentFormPage(),
+    ),
   ],
 );
 
@@ -129,24 +136,4 @@ String? _authGuard(BuildContext context, GoRouterState state) {
   if (!isLoggedIn && !isAuthRoute) return RouteNames.login;
   if (isLoggedIn && isAuthRoute) return RouteNames.dashboard;
   return null;
-}
-
-/// Temporary placeholder page used until actual feature pages are built.
-class _PlaceholderPage extends StatelessWidget {
-  final String title;
-
-  const _PlaceholderPage({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ),
-    );
-  }
 }

@@ -1,0 +1,90 @@
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/appointment_entity.dart';
+import '../../domain/entities/appointment_service_entity.dart';
+import '../../domain/repositories/appointment_repository.dart';
+import '../datasources/appointment_remote_datasource.dart';
+import '../models/appointment_model.dart';
+import '../models/appointment_service_model.dart';
+
+class AppointmentRepositoryImpl implements AppointmentRepository {
+  final AppointmentRemoteDataSource remoteDataSource;
+
+  const AppointmentRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, List<AppointmentEntity>>> getAppointments(
+    String barbershopId,
+    DateTime date,
+  ) async {
+    try {
+      final models = await remoteDataSource.getAppointments(barbershopId, date);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AppointmentEntity>> createAppointment(
+    AppointmentEntity appointment,
+    List<AppointmentServiceEntity> services,
+  ) async {
+    try {
+      final model = AppointmentModel.fromEntity(appointment);
+      final serviceModels =
+          services.map((s) => AppointmentServiceModel.fromEntity(s)).toList();
+      final created = await remoteDataSource.createAppointment(model, serviceModels);
+      return Right(created.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAppointmentStatus(String id, String status) async {
+    try {
+      await remoteDataSource.updateAppointmentStatus(id, status);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AppointmentEntity>>> getEmployeeAppointments(
+    String employeeId,
+    DateTime date,
+  ) async {
+    try {
+      final models = await remoteDataSource.getEmployeeAppointments(employeeId, date);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AppointmentServiceEntity>>> getAppointmentServices(
+    String appointmentId,
+  ) async {
+    try {
+      final models = await remoteDataSource.getAppointmentServices(appointmentId);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+}
