@@ -11,6 +11,9 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/employees/presentation/pages/employee_list_page.dart';
 import '../../features/employees/presentation/pages/employee_detail_page.dart';
 import '../../features/employees/presentation/pages/employee_form_page.dart';
+import '../../features/services/presentation/pages/service_list_page.dart';
+import '../../features/services/presentation/pages/service_detail_page.dart';
+import '../../features/services/presentation/pages/service_form_page.dart';
 
 /// Main application router configuration.
 ///
@@ -79,6 +82,32 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final id = state.pathParameters['id']!;
         return EmployeeFormPage(employeeId: id);
+      },
+    ),
+    GoRoute(
+      path: RouteNames.services,
+      name: 'services',
+      builder: (context, state) => const ServiceListPage(),
+    ),
+    GoRoute(
+      path: RouteNames.serviceNew,
+      name: 'serviceNew',
+      builder: (context, state) => const ServiceFormPage(),
+    ),
+    GoRoute(
+      path: RouteNames.serviceDetail,
+      name: 'serviceDetail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ServiceDetailPage(id: id);
+      },
+    ),
+    GoRoute(
+      path: '/services/:id/edit',
+      name: 'serviceEdit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ServiceFormPage(serviceId: id);
       },
     ),
   ],
