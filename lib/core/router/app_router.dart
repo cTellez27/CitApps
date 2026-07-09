@@ -16,9 +16,13 @@ import '../../features/services/presentation/pages/service_detail_page.dart';
 import '../../features/services/presentation/pages/service_form_page.dart';
 import '../../features/appointments/presentation/pages/agenda_page.dart';
 import '../../features/appointments/presentation/pages/appointment_form_page.dart';
+import '../../features/appointments/presentation/pages/appointment_detail_page.dart';
 import '../../features/clients/presentation/pages/client_list_page.dart';
 import '../../features/clients/presentation/pages/client_form_page.dart';
 import '../../features/clients/presentation/pages/commissions_report_page.dart';
+import '../../features/reports/presentation/pages/services_report_page.dart';
+import '../../features/products/presentation/pages/product_list_page.dart';
+import '../../features/products/presentation/pages/product_form_page.dart';
 
 /// Main application router configuration.
 ///
@@ -121,6 +125,14 @@ final appRouter = GoRouter(
       builder: (context, state) => const AppointmentFormPage(),
     ),
     GoRoute(
+      path: '/schedule/:id',
+      name: 'appointmentDetail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return AppointmentDetailPage(appointmentId: id);
+      },
+    ),
+    GoRoute(
       path: RouteNames.clients,
       name: 'clients',
       builder: (context, state) => const ClientListPage(),
@@ -142,6 +154,29 @@ final appRouter = GoRouter(
       path: '/reports/commissions',
       name: 'commissionsReport',
       builder: (context, state) => const CommissionsReportPage(),
+    ),
+    GoRoute(
+      path: RouteNames.reports,
+      name: 'servicesReport',
+      builder: (context, state) => const ServicesReportPage(),
+    ),
+    GoRoute(
+      path: RouteNames.inventory,
+      name: 'inventory',
+      builder: (context, state) => const ProductListPage(),
+    ),
+    GoRoute(
+      path: RouteNames.productNew,
+      name: 'productNew',
+      builder: (context, state) => const ProductFormPage(),
+    ),
+    GoRoute(
+      path: '/inventory/:id/edit',
+      name: 'productEdit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ProductFormPage(productId: id);
+      },
     ),
   ],
 );

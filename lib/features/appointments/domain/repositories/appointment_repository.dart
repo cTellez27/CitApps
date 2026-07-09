@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/appointment_entity.dart';
 import '../entities/appointment_service_entity.dart';
+import '../entities/appointment_product_entity.dart';
 
 /// Contract definition for Appointments repository.
 ///
@@ -33,4 +34,11 @@ abstract class AppointmentRepository {
   Future<Either<Failure, List<AppointmentServiceEntity>>> getAppointmentServices(
     String appointmentId,
   );
+
+  // Extras
+  Future<Either<Failure, void>> addExtraService(String appointmentId, String serviceId, double price);
+  Future<Either<Failure, void>> addExtraProduct(String appointmentId, String productId, double price, int quantity);
+  Future<Either<Failure, List<AppointmentProductEntity>>> getAppointmentProducts(String appointmentId);
+  Future<Either<Failure, void>> updateAppointmentTotalPrice(String appointmentId, double totalPrice);
 }
+

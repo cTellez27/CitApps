@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
+
 import 'app.dart';
 import 'core/config/supabase_config.dart';
 
@@ -14,6 +16,9 @@ import 'core/config/supabase_config.dart';
 /// 4. Wraps the app with [ProviderScope] for Riverpod
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize date formatting locale
+  await initializeDateFormatting('es', null);
 
   // Lock to portrait mode for mobile
   await SystemChrome.setPreferredOrientations([

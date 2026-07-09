@@ -4,6 +4,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/constants/db_tables.dart';
 import '../models/appointment_model.dart';
 import '../models/appointment_service_model.dart';
+import '../models/appointment_product_model.dart';
 
 abstract class AppointmentRemoteDataSource {
   Future<List<AppointmentModel>> getAppointments(String barbershopId, DateTime date);
@@ -14,6 +15,12 @@ abstract class AppointmentRemoteDataSource {
   Future<void> updateAppointmentStatus(String id, String status);
   Future<List<AppointmentModel>> getEmployeeAppointments(String employeeId, DateTime date);
   Future<List<AppointmentServiceModel>> getAppointmentServices(String appointmentId);
+  
+  // Extra additions & details
+  Future<void> addExtraService(String appointmentId, String serviceId, double price);
+  Future<void> addExtraProduct(String appointmentId, String productId, double price, int quantity);
+  Future<List<AppointmentProductModel>> getAppointmentProducts(String appointmentId);
+  Future<void> updateAppointmentTotalPrice(String appointmentId, double totalPrice);
 }
 
 class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
@@ -141,4 +148,59 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       throw ServerException(message: 'Error al obtener servicios de la cita: $e');
     }
   }
+
+  @override
+  Future<void> addExtraService(String appointmentId, String serviceId, double price) async {
+    try {
+      await supabase.from(DbTables.appointmentServices).insert({
+        'appointment_id': appointmentId,
+        'service_id': serviceId,
+        'price': price,
+      });
+    } catch (e) {
+      throw ServerException(message: 'Error al agregar servicio extra: $e');
+    }
+  }
+
+  @override
+  Future<void> addExtraProduct(
+      String appointmentId, String productId, double price, int quantity) async {
+    try {
+      await supabase.from('appointment_products').insert({
+        'appointment_id': appointmentId,
+        'product_id': productId,
+        'price': price,
+        'quantity': quantity,
+      });
+    } catch (e) {
+      throw ServerException(message: 'Error al agregar producto extra: $e');
+    }
+  }
+
+  @override
+  Future<List<AppointmentProductModel>> getAppointmentProducts(String appointmentId) async {
+    try {
+      final List<dynamic> data = await supabase
+          .from('appointment_products')
+          .select()
+          .eq('appointment_id', appointmentId);
+
+      return data.map((item) => AppointmentProductModel.fromJson(item)).toList();
+    } catch (e) {
+      throw ServerException(message: 'Error al obtener productos de la cita: $e');
+    }
+  }
+
+  @override
+  Future<void> updateAppointmentTotalPrice(String appointmentId, double totalPrice) async {
+    try {
+      await supabase
+          .from(DbTables.appointments)
+          .update({'total_price': totalPrice})
+          .eq('id', appointmentId);
+    } catch (e) {
+      throw ServerException(message: 'Error al actualizar el total de la cita: $e');
+    }
+  }
 }
+

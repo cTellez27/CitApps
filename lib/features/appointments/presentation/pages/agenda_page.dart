@@ -17,6 +17,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../employees/presentation/providers/employees_provider.dart';
 import '../../../employees/domain/entities/employee_entity.dart';
+import '../../../settings/presentation/providers/settings_provider.dart';
 import '../providers/appointments_provider.dart';
 import '../../domain/entities/appointment_entity.dart';
 
@@ -81,6 +82,7 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
     final appointmentsAsync = ref.watch(appointmentsStateProvider);
     final employeesAsync = ref.watch(employeesStateProvider);
     final authState = ref.watch(authNotifierProvider);
+    final barbershopAsync = ref.watch(barbershopStateProvider);
 
     final isOwnerOrAdmin = authState is Authenticated &&
         (authState.user.role == UserRole.owner || authState.user.role == UserRole.admin);
@@ -89,6 +91,134 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
     final dateLabel = DateFormat('EEEE, d \'de\' MMMM', 'es').format(activeDate);
 
     return Scaffold(
+      drawer: Drawer(
+        child: Container(
+          color: AppColors.backgroundDark,
+          child: Column(
+            children: [
+              // Header
+              barbershopAsync.when(
+                data: (barbershop) => UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(
+                    color: AppColors.cardDark,
+                    border: Border(
+                      bottom: BorderSide(color: AppColors.primary, width: 1),
+                    ),
+                  ),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: AppColors.backgroundDark,
+                    child: Text(
+                      barbershop?.name[0].toUpperCase() ?? 'C',
+                      style: const TextStyle(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  accountName: Text(
+                    barbershop?.name ?? 'Mi Barbería',
+                    style: AppTextStyles.labelLg.copyWith(color: AppColors.textPrimaryDark),
+                  ),
+                  accountEmail: Text(
+                    switch (authState) {
+                      Authenticated(user: final u) => '${u.fullName} (${u.role == UserRole.owner ? 'Propietario' : 'Personal'})',
+                      _ => '',
+                    },
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondaryDark),
+                  ),
+                ),
+                loading: () => const DrawerHeader(child: Center(child: CircularProgressIndicator())),
+                error: (_, _) => const DrawerHeader(child: Text('Error')),
+              ),
+
+              // Drawer Items
+              ListTile(
+                leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary),
+                title: const Text('Agenda de Citas'),
+                onTap: () => Navigator.pop(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.badge_outlined, color: AppColors.primary),
+                title: const Text('Personal y Barberos'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/employees');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.content_cut_rounded, color: AppColors.primary),
+                title: const Text('Catálogo de Servicios'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/services');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.people_outline_rounded, color: AppColors.primary),
+                title: const Text('Directorio de Clientes'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/clients');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.bar_chart_rounded, color: AppColors.primary),
+                title: const Text('Reportes de Servicios'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/reports');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.inventory_2_outlined, color: AppColors.primary),
+                title: const Text('Inventario de Productos'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/inventory');
+                },
+              ),
+
+              // Conditional Reports (Owner or Admin only)
+              if (isOwnerOrAdmin)
+                barbershopAsync.maybeWhen(
+                  data: (shop) => shop != null && shop.enableCommissions
+                      ? ListTile(
+                          leading: const Icon(Icons.analytics_outlined, color: AppColors.primary),
+                          title: const Text('Comisiones y Ganancias'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.push('/reports/commissions');
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                  orElse: () => const SizedBox.shrink(),
+                ),
+
+              // Settings (Owner or Admin only)
+              if (isOwnerOrAdmin)
+                ListTile(
+                  leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
+                  title: const Text('Ajustes de Barbería'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/settings');
+                  },
+                ),
+
+              const Spacer(),
+              const Divider(),
+
+              // Logout
+              ListTile(
+                leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+                title: const Text('Cerrar Sesión', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  ref.read(authNotifierProvider.notifier).signOut();
+                },
+              ),
+              const SizedBox(height: AppSizes.md),
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
         title: const Text('Agenda de Citas'),
         actions: [
@@ -217,23 +347,45 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
                       orElse: () => 'Cargando...',
                     );
 
-                    final statusLabel = switch (appt.status) {
+                     // Compute effective status — show correct transition locally
+                     final now = DateTime.now();
+                     final isHappening = (appt.status == 'pending' ||
+                             appt.status == 'confirmed') &&
+                         now.isAfter(appt.startTime) &&
+                         now.isBefore(appt.endTime);
+                     final isEnded = (appt.status == 'pending' ||
+                             appt.status == 'confirmed' ||
+                             appt.status == 'in_progress') &&
+                         (now.isAfter(appt.endTime) || now.isAtSameMomentAs(appt.endTime));
+
+                     final effectiveStatus = isEnded
+                         ? 'completed'
+                         : isHappening
+                             ? 'in_progress'
+                             : appt.status;
+
+                    final statusLabel = switch (effectiveStatus) {
                       'pending' => 'Pendiente',
                       'confirmed' => 'Confirmada',
+                      'in_progress' => 'En Proceso',
                       'completed' => 'Completada',
                       'cancelled' => 'Cancelada',
-                      _ => appt.status,
+                      _ => effectiveStatus,
                     };
 
-                    final statusColor = switch (appt.status) {
+                    final statusColor = switch (effectiveStatus) {
                       'pending' => Colors.orange,
                       'confirmed' => AppColors.success,
-                      'completed' => Colors.blue,
+                      'in_progress' => const Color(0xFF42A5F5),
+                      'completed' => Colors.green,
                       'cancelled' => AppColors.error,
                       _ => Colors.white,
                     };
 
-                    return Card(
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => context.push('/schedule/${appt.id}'),
+                      child: Card(
                       margin: const EdgeInsets.only(bottom: AppSizes.md),
                       child: Padding(
                         padding: const EdgeInsets.all(AppSizes.md),
@@ -301,8 +453,9 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
                           ],
                         ),
                       ),
-                    );
-                  },
+                    ), // Card
+                  ); // InkWell
+                },
                 );
               },
               loading: () => const LoadingWidget(),

@@ -7,6 +7,7 @@ import '../../../employees/presentation/providers/employees_provider.dart';
 import '../../../employees/domain/entities/employee_schedule_entity.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../../domain/entities/appointment_service_entity.dart';
+import '../../domain/entities/appointment_product_entity.dart';
 import '../../domain/usecases/get_appointments_usecase.dart';
 import '../../domain/usecases/create_appointment_usecase.dart';
 import '../../domain/usecases/cancel_appointment_usecase.dart';
@@ -72,9 +73,41 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
     final result = await ref.read(getAppointmentsUseCaseProvider).execute(barbershopId, activeDate);
     return result.fold(
       (failure) => throw failure,
-      (appointments) => appointments,
+      (appointments) {
+        final now = DateTime.now();
+        final List<AppointmentEntity> updatedList = [];
+
+        for (final appt in appointments) {
+          String targetStatus = appt.status;
+
+          // Auto-transitions based on start/end times
+          if (appt.status == 'pending' || appt.status == 'confirmed') {
+            if (now.isAfter(appt.endTime) || now.isAtSameMomentAs(appt.endTime)) {
+              targetStatus = 'completed';
+            } else if (now.isAfter(appt.startTime) || now.isAtSameMomentAs(appt.startTime)) {
+              targetStatus = 'in_progress';
+            }
+          } else if (appt.status == 'in_progress') {
+            if (now.isAfter(appt.endTime) || now.isAtSameMomentAs(appt.endTime)) {
+              targetStatus = 'completed';
+            }
+          }
+
+          if (targetStatus != appt.status) {
+            // Silently update Supabase in the background
+            ref
+                .read(appointmentRepositoryProvider)
+                .updateAppointmentStatus(appt.id, targetStatus);
+            updatedList.add(appt.copyWith(status: targetStatus));
+          } else {
+            updatedList.add(appt);
+          }
+        }
+        return updatedList;
+      },
     );
   }
+
 
   Future<void> bookAppointment({
     required AppointmentEntity appointment,
@@ -98,6 +131,79 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
       (_) => ref.invalidateSelf(),
     );
+  }
+
+  /// Marks the appointment as in_progress in the database.
+  Future<void> markInProgress(String appointmentId) async {
+    final result = await ref
+        .read(appointmentRepositoryProvider)
+        .updateAppointmentStatus(appointmentId, 'in_progress');
+    result.fold(
+      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
+  /// Marks the appointment as completed in the database.
+  Future<void> completeAppointment(String appointmentId) async {
+    final result = await ref
+        .read(appointmentRepositoryProvider)
+        .updateAppointmentStatus(appointmentId, 'completed');
+    result.fold(
+      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (_) => ref.invalidateSelf(),
+    );
+  }
+
+  /// Adds an extra service to an existing appointment and recalculates the total.
+  Future<void> addExtraService(String appointmentId, String serviceId, double price) async {
+    final repo = ref.read(appointmentRepositoryProvider);
+    
+    // 1. Insert extra service link
+    final insertResult = await repo.addExtraService(appointmentId, serviceId, price);
+    if (insertResult.isLeft()) return;
+
+    // 2. Recalculate total price
+    await _recalculateTotal(appointmentId);
+  }
+
+  /// Adds a product purchase to the appointment and recalculates the total.
+  Future<void> addExtraProduct(
+      String appointmentId, String productId, double price, int quantity) async {
+    final repo = ref.read(appointmentRepositoryProvider);
+
+    // 1. Insert product link
+    final insertResult = await repo.addExtraProduct(appointmentId, productId, price, quantity);
+    if (insertResult.isLeft()) return;
+
+    // 2. Recalculate total price
+    await _recalculateTotal(appointmentId);
+  }
+
+  /// Helper to sum all services and products, then update the appointment's total_price.
+  Future<void> _recalculateTotal(String appointmentId) async {
+    final repo = ref.read(appointmentRepositoryProvider);
+
+    // Get services
+    final servicesRes = await repo.getAppointmentServices(appointmentId);
+    final services = servicesRes.getOrElse(() => []);
+
+    // Get products
+    final productsRes = await repo.getAppointmentProducts(appointmentId);
+    final products = productsRes.getOrElse(() => []);
+
+    // Calculate sum
+    final double servicesSum = services.fold(0.0, (sum, s) => sum + s.price);
+    final double productsSum = products.fold(0.0, (sum, p) => sum + (p.price * p.quantity));
+    final double newTotal = servicesSum + productsSum;
+
+    // Update DB
+    await repo.updateAppointmentTotalPrice(appointmentId, newTotal);
+
+    // Refresh UI
+    ref.invalidateSelf();
+    ref.invalidate(appointmentServicesProvider(appointmentId));
+    ref.invalidate(appointmentProductsProvider(appointmentId));
   }
 }
 
@@ -241,3 +347,30 @@ final employeeAvailabilityProvider =
 
   return availableSlots;
 });
+
+/// Fetches the services list associated with an appointment.
+final appointmentServicesProvider =
+    FutureProvider.family<List<AppointmentServiceEntity>, String>((ref, appointmentId) async {
+  final result = await ref
+      .read(appointmentRepositoryProvider)
+      .getAppointmentServices(appointmentId);
+
+  return result.fold(
+    (failure) => throw failure,
+    (services) => services,
+  );
+});
+
+/// Fetches the products list associated with an appointment.
+final appointmentProductsProvider =
+    FutureProvider.family<List<AppointmentProductEntity>, String>((ref, appointmentId) async {
+  final result = await ref
+      .read(appointmentRepositoryProvider)
+      .getAppointmentProducts(appointmentId);
+
+  return result.fold(
+    (failure) => throw failure,
+    (products) => products,
+  );
+});
+

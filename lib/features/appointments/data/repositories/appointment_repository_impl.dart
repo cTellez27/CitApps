@@ -4,6 +4,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../../domain/entities/appointment_service_entity.dart';
+import '../../domain/entities/appointment_product_entity.dart';
 import '../../domain/repositories/appointment_repository.dart';
 import '../datasources/appointment_remote_datasource.dart';
 import '../models/appointment_model.dart';
@@ -87,4 +88,57 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> addExtraService(
+      String appointmentId, String serviceId, double price) async {
+    try {
+      await remoteDataSource.addExtraService(appointmentId, serviceId, price);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addExtraProduct(
+      String appointmentId, String productId, double price, int quantity) async {
+    try {
+      await remoteDataSource.addExtraProduct(appointmentId, productId, price, quantity);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AppointmentProductEntity>>> getAppointmentProducts(
+      String appointmentId) async {
+    try {
+      final models = await remoteDataSource.getAppointmentProducts(appointmentId);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAppointmentTotalPrice(
+      String appointmentId, double totalPrice) async {
+    try {
+      await remoteDataSource.updateAppointmentTotalPrice(appointmentId, totalPrice);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 }
+
