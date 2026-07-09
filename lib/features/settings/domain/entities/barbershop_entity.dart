@@ -15,6 +15,8 @@ class BarbershopEntity extends Equatable {
   final int appointmentInterval;
   final String timezone;
   final bool isActive;
+  final bool enableCommissions;
+  final bool enableEmployeeSchedules;
 
   const BarbershopEntity({
     required this.id,
@@ -30,6 +32,8 @@ class BarbershopEntity extends Equatable {
     this.appointmentInterval = 30,
     this.timezone = 'America/Mexico_City',
     this.isActive = true,
+    this.enableCommissions = false,
+    this.enableEmployeeSchedules = false,
   });
 
   /// Copy helper to mutate entity state.
@@ -47,6 +51,8 @@ class BarbershopEntity extends Equatable {
     int? appointmentInterval,
     String? timezone,
     bool? isActive,
+    bool? enableCommissions,
+    bool? enableEmployeeSchedules,
   }) {
     return BarbershopEntity(
       id: id ?? this.id,
@@ -62,6 +68,8 @@ class BarbershopEntity extends Equatable {
       appointmentInterval: appointmentInterval ?? this.appointmentInterval,
       timezone: timezone ?? this.timezone,
       isActive: isActive ?? this.isActive,
+      enableCommissions: enableCommissions ?? this.enableCommissions,
+      enableEmployeeSchedules: enableEmployeeSchedules ?? this.enableEmployeeSchedules,
     );
   }
 
@@ -80,5 +88,7 @@ class BarbershopEntity extends Equatable {
         appointmentInterval,
         timezone,
         isActive,
+        enableCommissions,
+        enableEmployeeSchedules,
       ];
 }

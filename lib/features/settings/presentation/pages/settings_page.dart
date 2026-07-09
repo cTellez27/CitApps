@@ -41,6 +41,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
   List<BarbershopHoursEntity> _localHours = [];
   bool _isHoursInitialized = false;
 
+  // Feature flags
+  bool _enableCommissions = false;
+  bool _enableEmployeeSchedules = false;
+  bool _isProfileInitialized = false;
+
   @override
   void initState() {
     super.initState();
@@ -59,12 +64,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
   }
 
   void _initProfileControllers(BarbershopEntity barbershop) {
-    if (_nameController.text.isEmpty) {
+    if (!_isProfileInitialized) {
       _nameController.text = barbershop.name;
       _phoneController.text = barbershop.phone ?? '';
       _addressController.text = barbershop.address ?? '';
       _websiteController.text = barbershop.website ?? '';
       _instagramController.text = barbershop.instagram ?? '';
+      _enableCommissions = barbershop.enableCommissions;
+      _enableEmployeeSchedules = barbershop.enableEmployeeSchedules;
+      _isProfileInitialized = true;
     }
   }
 
@@ -76,6 +84,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
         address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
         website: _websiteController.text.trim().isEmpty ? null : _websiteController.text.trim(),
         instagram: _instagramController.text.trim().isEmpty ? null : _instagramController.text.trim(),
+        enableCommissions: _enableCommissions,
+        enableEmployeeSchedules: _enableEmployeeSchedules,
       );
 
       ref.read(barbershopStateProvider.notifier).updateBarbershop(updated).then((_) {
@@ -256,6 +266,47 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
                               controller: _instagramController,
                               prefixIcon: Icons.camera_alt_outlined,
                               readOnly: !isOwnerOrAdmin,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSizes.md),
+                      AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('Módulos Adicionales', style: AppTextStyles.h4),
+                            const SizedBox(height: AppSizes.lg),
+                            SwitchListTile(
+                              title: const Text('Habilitar comisiones de barberos'),
+                              subtitle: const Text('Permite calcular comisiones por servicio realizado.'),
+                              value: _enableCommissions,
+                              activeThumbColor: AppColors.primary,
+                              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+                              contentPadding: EdgeInsets.zero,
+                              onChanged: !isOwnerOrAdmin
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        _enableCommissions = val;
+                                      });
+                                    },
+                            ),
+                            const Divider(),
+                            SwitchListTile(
+                              title: const Text('Habilitar horarios por empleado'),
+                              subtitle: const Text('Permite configurar turnos de trabajo específicos por barbero.'),
+                              value: _enableEmployeeSchedules,
+                              activeThumbColor: AppColors.primary,
+                              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+                              contentPadding: EdgeInsets.zero,
+                              onChanged: !isOwnerOrAdmin
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        _enableEmployeeSchedules = val;
+                                      });
+                                    },
                             ),
                           ],
                         ),

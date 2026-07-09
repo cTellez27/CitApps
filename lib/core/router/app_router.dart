@@ -8,6 +8,9 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/employees/presentation/pages/employee_list_page.dart';
+import '../../features/employees/presentation/pages/employee_detail_page.dart';
+import '../../features/employees/presentation/pages/employee_form_page.dart';
 
 /// Main application router configuration.
 ///
@@ -51,6 +54,32 @@ final appRouter = GoRouter(
       path: RouteNames.settings,
       name: 'settings',
       builder: (context, state) => const SettingsPage(),
+    ),
+    GoRoute(
+      path: RouteNames.employees,
+      name: 'employees',
+      builder: (context, state) => const EmployeeListPage(),
+    ),
+    GoRoute(
+      path: RouteNames.employeeNew,
+      name: 'employeeNew',
+      builder: (context, state) => const EmployeeFormPage(),
+    ),
+    GoRoute(
+      path: RouteNames.employeeDetail,
+      name: 'employeeDetail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EmployeeDetailPage(id: id);
+      },
+    ),
+    GoRoute(
+      path: '/employees/:id/edit',
+      name: 'employeeEdit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EmployeeFormPage(employeeId: id);
+      },
     ),
   ],
 );

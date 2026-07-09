@@ -16,6 +16,8 @@ class BarbershopModel extends BarbershopEntity {
     super.appointmentInterval,
     super.timezone,
     super.isActive,
+    super.enableCommissions,
+    super.enableEmployeeSchedules,
   });
 
   /// Factory constructor to build model from database JSON map.
@@ -34,6 +36,8 @@ class BarbershopModel extends BarbershopEntity {
       appointmentInterval: json['appointment_interval'] as int? ?? 30,
       timezone: json['timezone'] as String? ?? 'America/Mexico_City',
       isActive: json['is_active'] as bool? ?? true,
+      enableCommissions: json['enable_commissions'] as bool? ?? false,
+      enableEmployeeSchedules: json['enable_employee_schedules'] as bool? ?? false,
     );
   }
 
@@ -53,6 +57,8 @@ class BarbershopModel extends BarbershopEntity {
       'appointment_interval': appointmentInterval,
       'timezone': timezone,
       'is_active': isActive,
+      'enable_commissions': enableCommissions,
+      'enable_employee_schedules': enableEmployeeSchedules,
     };
   }
 
@@ -72,6 +78,8 @@ class BarbershopModel extends BarbershopEntity {
       appointmentInterval: entity.appointmentInterval,
       timezone: entity.timezone,
       isActive: entity.isActive,
+      enableCommissions: entity.enableCommissions,
+      enableEmployeeSchedules: entity.enableEmployeeSchedules,
     );
   }
 
@@ -91,6 +99,8 @@ class BarbershopModel extends BarbershopEntity {
       appointmentInterval: appointmentInterval,
       timezone: timezone,
       isActive: isActive,
+      enableCommissions: enableCommissions,
+      enableEmployeeSchedules: enableEmployeeSchedules,
     );
   }
 }
