@@ -21,6 +21,8 @@ abstract class AppointmentRemoteDataSource {
   Future<void> addExtraProduct(String appointmentId, String productId, double price, int quantity);
   Future<List<AppointmentProductModel>> getAppointmentProducts(String appointmentId);
   Future<void> updateAppointmentTotalPrice(String appointmentId, double totalPrice);
+  Future<void> deleteExtraService(String appointmentId, String serviceId);
+  Future<void> deleteExtraProduct(String appointmentId, String productId);
 }
 
 class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
@@ -200,6 +202,32 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
           .eq('id', appointmentId);
     } catch (e) {
       throw ServerException(message: 'Error al actualizar el total de la cita: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteExtraService(String appointmentId, String serviceId) async {
+    try {
+      await supabase
+          .from(DbTables.appointmentServices)
+          .delete()
+          .eq('appointment_id', appointmentId)
+          .eq('service_id', serviceId);
+    } catch (e) {
+      throw ServerException(message: 'Error al eliminar servicio extra: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteExtraProduct(String appointmentId, String productId) async {
+    try {
+      await supabase
+          .from('appointment_products')
+          .delete()
+          .eq('appointment_id', appointmentId)
+          .eq('product_id', productId);
+    } catch (e) {
+      throw ServerException(message: 'Error al eliminar producto extra: $e');
     }
   }
 }

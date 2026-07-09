@@ -24,7 +24,7 @@ class App extends StatelessWidget {
       // ── Theme ──
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
-      themeMode: ThemeMode.dark, // Default to dark for premium feel
+      themeMode: ThemeMode.light, // Default to light premium theme
 
       // ── Router ──
       routerConfig: appRouter,

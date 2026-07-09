@@ -4,166 +4,156 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
 
-/// Dark theme configuration for CitApps.
-///
-/// Premium barbershop aesthetic with dark backgrounds
-/// and gold accent colors.
+/// Dark theme fallback configuration for CitApps (mapped to light premium aesthetic).
 ThemeData buildDarkTheme() {
+  final fontFamily = GoogleFonts.plusJakartaSans().fontFamily;
+
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
-    fontFamily: GoogleFonts.inter().fontFamily,
+    brightness: Brightness.light, // Map to light to enforce visual guidelines
+    fontFamily: fontFamily,
 
-    // ── Colors ──
-    colorScheme: const ColorScheme.dark(
+    colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
-      onPrimary: AppColors.backgroundDark,
-      secondary: AppColors.primaryLight,
-      onSecondary: AppColors.backgroundDark,
-      surface: AppColors.surfaceDark,
-      onSurface: AppColors.textPrimaryDark,
+      onPrimary: Colors.white,
+      secondary: AppColors.accent,
+      onSecondary: Colors.white,
+      surface: AppColors.surface,
+      onSurface: AppColors.textPrimary,
       error: AppColors.error,
       onError: Colors.white,
     ),
-    scaffoldBackgroundColor: AppColors.backgroundDark,
+    scaffoldBackgroundColor: AppColors.background,
 
-    // ── AppBar ──
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.backgroundDark,
-      foregroundColor: AppColors.textPrimaryDark,
+      backgroundColor: AppColors.primary,
+      foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: false,
       toolbarHeight: AppSizes.appBarHeight,
     ),
 
-    // ── Card ──
     cardTheme: CardThemeData(
-      color: AppColors.cardDark,
-      elevation: AppSizes.cardElevation,
+      color: AppColors.surface,
+      elevation: 1.0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        side: const BorderSide(color: AppColors.borderDark, width: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.dividerLight, width: 0.8),
       ),
       margin: EdgeInsets.zero,
     ),
 
-    // ── ElevatedButton ──
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.backgroundDark,
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderRadius: BorderRadius.circular(14.0), // Rounded 14 px
         ),
         elevation: 0,
         textStyle: TextStyle(
-          fontFamily: GoogleFonts.inter().fontFamily,
+          fontFamily: fontFamily,
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
 
-    // ── OutlinedButton ──
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.primary,
         minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderRadius: BorderRadius.circular(14.0), // Rounded 14 px
         ),
         side: const BorderSide(color: AppColors.primary, width: 1.5),
         textStyle: TextStyle(
-          fontFamily: GoogleFonts.inter().fontFamily,
+          fontFamily: fontFamily,
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
 
-    // ── TextButton ──
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primary,
+        foregroundColor: AppColors.accent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14.0),
+        ),
         textStyle: TextStyle(
-          fontFamily: GoogleFonts.inter().fontFamily,
+          fontFamily: fontFamily,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
 
-    // ── InputDecoration ──
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.cardDark,
+      fillColor: AppColors.surface,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSizes.md,
         vertical: AppSizes.md,
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        borderSide: const BorderSide(color: AppColors.borderDark),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.borderLight),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        borderSide: const BorderSide(color: AppColors.borderDark),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.borderLight),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.error, width: 1.5),
       ),
-      hintStyle: const TextStyle(color: AppColors.textSecondaryDark),
-      labelStyle: const TextStyle(color: AppColors.textSecondaryDark),
+      hintStyle: const TextStyle(color: AppColors.textSecondary),
+      labelStyle: const TextStyle(color: AppColors.textSecondary),
       errorStyle: const TextStyle(color: AppColors.error, fontSize: 12),
     ),
 
-    // ── BottomNavigationBar ──
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: AppColors.surfaceDark,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textSecondaryDark,
+      backgroundColor: AppColors.surface,
+      selectedItemColor: AppColors.accent,
+      unselectedItemColor: AppColors.textSecondary,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
     ),
 
-    // ── Divider ──
     dividerTheme: const DividerThemeData(
-      color: AppColors.dividerDark,
-      thickness: 0.5,
+      color: AppColors.dividerLight,
+      thickness: 0.8,
     ),
 
-    // ── FloatingActionButton ──
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.backgroundDark,
-      elevation: 2,
+      backgroundColor: AppColors.accent,
+      foregroundColor: Colors.white,
+      elevation: 3,
     ),
 
-    // ── SnackBar ──
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppColors.cardDark,
-      contentTextStyle: const TextStyle(color: AppColors.textPrimaryDark),
+      backgroundColor: AppColors.primary,
+      contentTextStyle: const TextStyle(color: Colors.white),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        borderRadius: BorderRadius.circular(12),
       ),
       behavior: SnackBarBehavior.floating,
     ),
 
-    // ── Dialog ──
     dialogTheme: DialogThemeData(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        borderRadius: BorderRadius.circular(16),
       ),
     ),
   );

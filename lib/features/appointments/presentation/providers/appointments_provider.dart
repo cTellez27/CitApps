@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/supabase_provider.dart';
+import '../../../../core/utils/widget_helper.dart';
+import '../../../reports/presentation/providers/reports_provider.dart';
 import '../../../settings/domain/entities/barbershop_hours_entity.dart';
 import '../../../settings/presentation/providers/settings_provider.dart';
 import '../../../employees/presentation/providers/employees_provider.dart';
@@ -103,6 +105,14 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
             updatedList.add(appt);
           }
         }
+
+        final isToday = activeDate.year == now.year &&
+            activeDate.month == now.month &&
+            activeDate.day == now.day;
+        if (isToday) {
+          WidgetHelper.updateHomeScreenWidget(updatedList);
+        }
+
         return updatedList;
       },
     );
@@ -129,7 +139,10 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
     final result = await ref.read(cancelAppointmentUseCaseProvider).execute(appointmentId);
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
-      (_) => ref.invalidateSelf(),
+      (_) {
+        ref.invalidateSelf();
+        ref.invalidate(servicesReportProvider);
+      },
     );
   }
 
@@ -151,7 +164,10 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
         .updateAppointmentStatus(appointmentId, 'completed');
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
-      (_) => ref.invalidateSelf(),
+      (_) {
+        ref.invalidateSelf();
+        ref.invalidate(servicesReportProvider);
+      },
     );
   }
 
@@ -180,6 +196,23 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
     await _recalculateTotal(appointmentId);
   }
 
+  /// Removes an extra service from the appointment and recalculates the total.
+  Future<void> removeExtraService(String appointmentId, String serviceId) async {
+    final repo = ref.read(appointmentRepositoryProvider);
+    final deleteResult = await repo.deleteExtraService(appointmentId, serviceId);
+    if (deleteResult.isLeft()) return;
+    await _recalculateTotal(appointmentId);
+  }
+
+  /// Removes an extra product from the appointment and recalculates the total.
+  Future<void> removeExtraProduct(String appointmentId, String productId) async {
+    final repo = ref.read(appointmentRepositoryProvider);
+    final deleteResult = await repo.deleteExtraProduct(appointmentId, productId);
+    if (deleteResult.isLeft()) return;
+    await _recalculateTotal(appointmentId);
+  }
+
+
   /// Helper to sum all services and products, then update the appointment's total_price.
   Future<void> _recalculateTotal(String appointmentId) async {
     final repo = ref.read(appointmentRepositoryProvider);
@@ -204,6 +237,7 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
     ref.invalidateSelf();
     ref.invalidate(appointmentServicesProvider(appointmentId));
     ref.invalidate(appointmentProductsProvider(appointmentId));
+    ref.invalidate(servicesReportProvider);
   }
 }
 

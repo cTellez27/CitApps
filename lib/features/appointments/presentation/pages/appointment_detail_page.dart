@@ -246,6 +246,7 @@ class AppointmentDetailPage extends ConsumerWidget {
                         data: (services) {
                           if (services.isEmpty) return const SizedBox.shrink();
                           final catalog = servicesAsync.valueOrNull ?? [];
+                          final canDelete = effectiveStatus != 'completed' && effectiveStatus != 'cancelled';
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: services.map((ls) {
@@ -254,18 +255,34 @@ class AppointmentDetailPage extends ConsumerWidget {
                                       orElse: () => ServiceEntity(id: '', name: 'Servicio Extra', price: ls.price, durationMinutes: 0, barbershopId: ''))
                                   .name;
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.symmetric(vertical: 2),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.content_cut_rounded, size: 14, color: AppColors.textSecondaryDark),
+                                          const SizedBox(width: 6),
+                                          Expanded(child: Text(name, style: AppTextStyles.bodyMd, overflow: TextOverflow.ellipsis)),
+                                        ],
+                                      ),
+                                    ),
                                     Row(
                                       children: [
-                                        const Icon(Icons.content_cut_rounded, size: 14, color: AppColors.textSecondaryDark),
-                                        const SizedBox(width: 6),
-                                        Text(name, style: AppTextStyles.bodyMd),
+                                        Text(CurrencyUtils.format(ls.price), style: AppTextStyles.labelMd),
+                                        if (canDelete)
+                                          IconButton(
+                                            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 16),
+                                            tooltip: 'Eliminar Servicio',
+                                            onPressed: () {
+                                              ref.read(appointmentsStateProvider.notifier).removeExtraService(appt.id, ls.serviceId);
+                                            },
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          ),
                                       ],
                                     ),
-                                    Text(CurrencyUtils.format(ls.price), style: AppTextStyles.labelMd),
                                   ],
                                 ),
                               );
@@ -281,6 +298,7 @@ class AppointmentDetailPage extends ConsumerWidget {
                         data: (products) {
                           if (products.isEmpty) return const SizedBox.shrink();
                           final catalog = productsAsync.valueOrNull ?? [];
+                          final canDelete = effectiveStatus != 'completed' && effectiveStatus != 'cancelled';
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -291,18 +309,34 @@ class AppointmentDetailPage extends ConsumerWidget {
                                         orElse: () => ProductEntity(id: '', name: 'Producto Extra', price: lp.price, stock: 0, barbershopId: ''))
                                     .name;
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.symmetric(vertical: 2),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.shopping_bag_outlined, size: 14, color: AppColors.primary),
+                                            const SizedBox(width: 6),
+                                            Expanded(child: Text('$name (x${lp.quantity})', style: AppTextStyles.bodyMd, overflow: TextOverflow.ellipsis)),
+                                          ],
+                                        ),
+                                      ),
                                       Row(
                                         children: [
-                                          const Icon(Icons.shopping_bag_outlined, size: 14, color: AppColors.primary),
-                                          const SizedBox(width: 6),
-                                          Text('$name (x${lp.quantity})', style: AppTextStyles.bodyMd),
+                                          Text(CurrencyUtils.format(lp.price * lp.quantity), style: AppTextStyles.labelMd),
+                                          if (canDelete)
+                                            IconButton(
+                                              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 16),
+                                              tooltip: 'Eliminar Producto',
+                                              onPressed: () {
+                                                ref.read(appointmentsStateProvider.notifier).removeExtraProduct(appt.id, lp.productId);
+                                              },
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                            ),
                                         ],
                                       ),
-                                      Text(CurrencyUtils.format(lp.price * lp.quantity), style: AppTextStyles.labelMd),
                                     ],
                                   ),
                                 );
@@ -400,41 +434,50 @@ class AppointmentDetailPage extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surfaceDark,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
         final services = servicesAsync.valueOrNull ?? [];
-        return Padding(
-          padding: const EdgeInsets.all(AppSizes.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Agregar Servicio Extra', style: AppTextStyles.h3),
-              const SizedBox(height: AppSizes.md),
-              if (services.isEmpty)
-                const Center(child: Text('No hay servicios disponibles.'))
-              else
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: services.length,
-                    itemBuilder: (_, index) {
-                      final s = services[index];
-                      return ListTile(
-                        leading: const Icon(Icons.content_cut_rounded, color: AppColors.primary),
-                        title: Text(s.name),
-                        trailing: Text(CurrencyUtils.format(s.price)),
-                        onTap: () {
-                          ref.read(appointmentsStateProvider.notifier).addExtraService(appointmentId, s.id, s.price);
-                          Navigator.pop(ctx);
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          expand: false,
+          builder: (_, controller) {
+            return Padding(
+              padding: const EdgeInsets.all(AppSizes.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Agregar Servicio Extra', style: AppTextStyles.h3),
+                  const SizedBox(height: AppSizes.md),
+                  if (services.isEmpty)
+                    const Center(child: Text('No hay servicios disponibles.'))
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        controller: controller,
+                        itemCount: services.length,
+                        itemBuilder: (_, index) {
+                          final s = services[index];
+                          return ListTile(
+                            leading: const Icon(Icons.content_cut_rounded, color: AppColors.primary),
+                            title: Text(s.name),
+                            trailing: Text(CurrencyUtils.format(s.price)),
+                            onTap: () {
+                              ref.read(appointmentsStateProvider.notifier).addExtraService(appointmentId, s.id, s.price);
+                              Navigator.pop(ctx);
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -450,13 +493,12 @@ class AppointmentDetailPage extends ConsumerWidget {
       ),
       builder: (ctx) {
         final products = (productsAsync.valueOrNull ?? []).where((p) => p.isActive).toList();
-        
+        ProductEntity? selectedProduct;
+        int quantity = 1;
+
         return StatefulBuilder(
           builder: (modalCtx, setModalState) {
-            ProductEntity? selectedProduct;
-            int quantity = 1;
-
-            return Padding(
+            return SingleChildScrollView(
               padding: EdgeInsets.only(
                 top: AppSizes.lg,
                 left: AppSizes.lg,
@@ -473,16 +515,23 @@ class AppointmentDetailPage extends ConsumerWidget {
                     const Center(child: Text('No hay productos registrados en el inventario.'))
                   else ...[
                     DropdownButtonFormField<ProductEntity>(
+                      value: selectedProduct,
+                      isExpanded: true, // Prevents right overflow by constraining dropdown items
                       decoration: const InputDecoration(labelText: 'Producto'),
                       items: products.map((p) {
                         return DropdownMenuItem(
                           value: p,
-                          child: Text('${p.name} - Stock: ${p.stock} (${CurrencyUtils.format(p.price)})'),
+                          child: Text(
+                            '${p.name} - Stock: ${p.stock} (${CurrencyUtils.format(p.price)})',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         );
                       }).toList(),
                       onChanged: (val) {
                         setModalState(() {
                           selectedProduct = val;
+                          quantity = 1; // reset quantity
                         });
                       },
                     ),

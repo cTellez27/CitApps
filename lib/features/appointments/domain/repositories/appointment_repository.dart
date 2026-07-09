@@ -40,5 +40,7 @@ abstract class AppointmentRepository {
   Future<Either<Failure, void>> addExtraProduct(String appointmentId, String productId, double price, int quantity);
   Future<Either<Failure, List<AppointmentProductEntity>>> getAppointmentProducts(String appointmentId);
   Future<Either<Failure, void>> updateAppointmentTotalPrice(String appointmentId, double totalPrice);
+  Future<Either<Failure, void>> deleteExtraService(String appointmentId, String serviceId);
+  Future<Either<Failure, void>> deleteExtraProduct(String appointmentId, String productId);
 }
 

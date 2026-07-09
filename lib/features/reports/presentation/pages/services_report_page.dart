@@ -60,17 +60,17 @@ class ServicesReportPage extends ConsumerWidget {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.surfaceDark,
+                                  ? AppColors.accent
+                                  : AppColors.background,
                               foregroundColor: isSelected
-                                  ? Colors.black
-                                  : AppColors.textSecondaryDark,
+                                  ? Colors.white
+                                  : AppColors.textSecondary,
                               padding: const EdgeInsets.symmetric(
                                   vertical: AppSizes.sm),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(14),
                               ),
-                              elevation: isSelected ? 2 : 0,
+                              elevation: isSelected ? 1 : 0,
                             ),
                             onPressed: () => ref
                                 .read(reportPeriodProvider.notifier)

@@ -116,7 +116,7 @@ class _AppointmentFormPageState extends ConsumerState<AppointmentFormPage> {
 
                   // Search bar
                   TextField(
-                    autofocus: true,
+                    autofocus: false,
                     decoration: const InputDecoration(
                       hintText: 'Buscar por nombre o teléfono...',
                       prefixIcon: Icon(Icons.search_rounded),
@@ -128,7 +128,7 @@ class _AppointmentFormPageState extends ConsumerState<AppointmentFormPage> {
                   // Client list
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(ctx).size.height * 0.40,
+                      maxHeight: MediaQuery.of(ctx).size.height * 0.60,
                     ),
                     child: clients.isEmpty
                         ? Center(

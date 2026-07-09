@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="12dp">
+
+    <!-- Header: Negro Carbón style -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="#B78D3F"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CitApps"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#1F1F1F" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Barbería"
+            android:textSize="10sp"
+            android:gravity="end"
+            android:textColor="#6B7280" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E5E7EB"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Body: Appointments Count -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Citas de hoy"
+            android:textSize="12sp"
+            android:textColor="#6B7280" />
+
+        <TextView
+            android:id="@+id/widget_citas_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#1F1F1F" />
+    </LinearLayout>
+
+    <!-- Footer: Next Appointment details -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#F8F8F6"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/widget_proxima_cita_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Próxima Cita"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#B78D3F" />
+
+        <TextView
+            android:id="@+id/widget_proxima_cita_val"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sin citas pendientes"
+            android:textSize="11sp"
+            android:gravity="center"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="#222222" />
+    </LinearLayout>
+</LinearLayout>
