@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 
 /// Main application router configuration.
 ///
@@ -45,6 +46,11 @@ final appRouter = GoRouter(
       path: RouteNames.dashboard,
       name: 'dashboard',
       builder: (context, state) => const _PlaceholderPage(title: 'Dashboard (Fase 2)'),
+    ),
+    GoRoute(
+      path: RouteNames.settings,
+      name: 'settings',
+      builder: (context, state) => const SettingsPage(),
     ),
   ],
 );
