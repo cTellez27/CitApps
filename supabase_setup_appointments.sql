@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+); 
 
 -- 2. Crear tabla intermedia Cita-Servicios (Appointment Services)
 CREATE TABLE IF NOT EXISTS public.appointment_services (

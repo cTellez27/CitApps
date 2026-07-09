@@ -16,6 +16,9 @@ import '../../features/services/presentation/pages/service_detail_page.dart';
 import '../../features/services/presentation/pages/service_form_page.dart';
 import '../../features/appointments/presentation/pages/agenda_page.dart';
 import '../../features/appointments/presentation/pages/appointment_form_page.dart';
+import '../../features/clients/presentation/pages/client_list_page.dart';
+import '../../features/clients/presentation/pages/client_form_page.dart';
+import '../../features/clients/presentation/pages/commissions_report_page.dart';
 
 /// Main application router configuration.
 ///
@@ -116,6 +119,29 @@ final appRouter = GoRouter(
       path: RouteNames.schedule,
       name: 'schedule',
       builder: (context, state) => const AppointmentFormPage(),
+    ),
+    GoRoute(
+      path: RouteNames.clients,
+      name: 'clients',
+      builder: (context, state) => const ClientListPage(),
+    ),
+    GoRoute(
+      path: RouteNames.clientNew,
+      name: 'clientNew',
+      builder: (context, state) => const ClientFormPage(),
+    ),
+    GoRoute(
+      path: '/clients/:id/edit',
+      name: 'clientEdit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ClientFormPage(clientId: id);
+      },
+    ),
+    GoRoute(
+      path: '/reports/commissions',
+      name: 'commissionsReport',
+      builder: (context, state) => const CommissionsReportPage(),
     ),
   ],
 );
