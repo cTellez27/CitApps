@@ -11,6 +11,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/citapps_logo.dart';
 import '../providers/auth_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -80,26 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo/Header Area
-                  Icon(
-                    Icons.content_cut_rounded,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: AppSizes.md),
-                  Text(
-                    AppStrings.appName,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.h1.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  Text(
-                    AppStrings.appTagline,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMd.copyWith(
-                      color: AppColors.textSecondaryDark,
-                    ),
-                  ),
+                  const CitAppsLogo(size: 80),
                   const SizedBox(height: AppSizes.xl),
 
                   AppCard(
