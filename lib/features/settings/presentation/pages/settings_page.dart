@@ -177,9 +177,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
         title: const Text(AppStrings.settings),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondaryDark,
+          indicatorColor: AppColors.accent,
+          labelColor: AppColors.accent,
+          unselectedLabelColor: AppColors.textSecondary,
           tabs: const [
             Tab(icon: Icon(Icons.storefront_rounded), text: 'Perfil'),
             Tab(icon: Icon(Icons.access_time_rounded), text: 'Horarios'),

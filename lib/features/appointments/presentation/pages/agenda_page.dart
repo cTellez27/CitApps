@@ -30,6 +30,7 @@ class AgendaPage extends ConsumerStatefulWidget {
 
 class _AgendaPageState extends ConsumerState<AgendaPage> {
   String? _selectedEmployeeId; // Filtering by employee
+  final Set<String> _selectedAppointmentIds = {};
 
   Future<void> _selectDate(BuildContext context) async {
     final activeDate = ref.read(activeDateProvider);
@@ -70,6 +71,72 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
               });
             },
             child: const Text('Confirmar', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(AppointmentEntity appt) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Cita'),
+        content: Text('¿Estás seguro de que deseas eliminar permanentemente la cita de ${appt.customerName}? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(AppStrings.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(appointmentsStateProvider.notifier).deleteBooking(appt.id).then((_) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Cita eliminada permanentemente'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              });
+            },
+            child: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteSelected() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Seleccionadas'),
+        content: Text('¿Estás seguro de que deseas eliminar permanentemente las ${_selectedAppointmentIds.length} citas seleccionadas? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(AppStrings.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              final idsToDelete = _selectedAppointmentIds.toList();
+              ref.read(appointmentsStateProvider.notifier).deleteMultipleBookings(idsToDelete).then((_) {
+                if (!context.mounted) return;
+                setState(() {
+                  _selectedAppointmentIds.clear();
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Citas eliminadas permanentemente'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              });
+            },
+            child: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -220,8 +287,26 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
         ),
       ),
       appBar: AppBar(
-        title: const Text('Agenda de Citas'),
+        title: _selectedAppointmentIds.isEmpty
+            ? const Text('Agenda de Citas')
+            : Text('${_selectedAppointmentIds.length} seleccionadas'),
         actions: [
+          if (isOwnerOrAdmin && _selectedAppointmentIds.isNotEmpty) ...[
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_rounded, color: AppColors.error),
+              tooltip: 'Eliminar Seleccionadas',
+              onPressed: _confirmDeleteSelected,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close_rounded),
+              tooltip: 'Limpiar Selección',
+              onPressed: () {
+                setState(() {
+                  _selectedAppointmentIds.clear();
+                });
+              },
+            ),
+          ],
           IconButton(
             icon: const Icon(Icons.calendar_today_rounded),
             tooltip: 'Cambiar Fecha',
@@ -382,7 +467,8 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
                       _ => Colors.white,
                     };
 
-                    return InkWell(
+                    final isSelected = _selectedAppointmentIds.contains(appt.id);
+                    final cardWidget = InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () => context.push('/schedule/${appt.id}'),
                       child: Card(
@@ -442,12 +528,23 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
                                   'Total: ${CurrencyUtils.format(appt.totalPrice)}',
                                   style: AppTextStyles.labelMd,
                                 ),
-                                if (isOwnerOrAdmin && appt.status != 'cancelled')
-                                  IconButton(
-                                    icon: const Icon(Icons.cancel_outlined, color: AppColors.error, size: 20),
-                                    tooltip: 'Cancelar Cita',
-                                    onPressed: () => _confirmCancel(appt),
-                                  ),
+                                 if (isOwnerOrAdmin)
+                                   Row(
+                                     mainAxisSize: MainAxisSize.min,
+                                     children: [
+                                       if (appt.status != 'cancelled')
+                                         IconButton(
+                                           icon: const Icon(Icons.cancel_outlined, color: AppColors.error, size: 20),
+                                           tooltip: 'Cancelar Cita',
+                                           onPressed: () => _confirmCancel(appt),
+                                         ),
+                                       IconButton(
+                                         icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+                                         tooltip: 'Eliminar Cita',
+                                         onPressed: () => _confirmDelete(appt),
+                                       ),
+                                     ],
+                                   ),
                               ],
                             ),
                           ],
@@ -455,6 +552,28 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
                       ),
                     ), // Card
                   ); // InkWell
+
+                  if (isOwnerOrAdmin) {
+                    return Row(
+                      children: [
+                        Checkbox(
+                          value: isSelected,
+                          activeColor: AppColors.accent,
+                          onChanged: (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                _selectedAppointmentIds.add(appt.id);
+                              } else {
+                                _selectedAppointmentIds.remove(appt.id);
+                              }
+                            });
+                          },
+                        ),
+                        Expanded(child: cardWidget),
+                      ],
+                    );
+                  }
+                  return cardWidget;
                 },
                 );
               },

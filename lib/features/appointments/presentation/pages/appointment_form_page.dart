@@ -311,13 +311,13 @@ class _AppointmentFormPageState extends ConsumerState<AppointmentFormPage> {
               final isAlternateRow = rowIndex % 2 == 1;
 
               final bgColor = isSelected
-                  ? AppColors.primary
+                  ? accentColor
                   : isAlternateRow
                       ? AppColors.cardDark
                       : AppColors.surfaceDark;
 
               final textColor = isSelected
-                  ? Colors.black
+                  ? Colors.white
                   : accentColor.withAlpha(isAlternateRow ? 255 : 200);
 
               return GestureDetector(

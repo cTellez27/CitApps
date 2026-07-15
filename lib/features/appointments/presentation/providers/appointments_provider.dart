@@ -13,6 +13,8 @@ import '../../domain/entities/appointment_product_entity.dart';
 import '../../domain/usecases/get_appointments_usecase.dart';
 import '../../domain/usecases/create_appointment_usecase.dart';
 import '../../domain/usecases/cancel_appointment_usecase.dart';
+import '../../domain/usecases/delete_appointment_usecase.dart';
+import '../../domain/usecases/delete_appointments_usecase.dart';
 import '../../domain/usecases/get_employee_appointments_usecase.dart';
 import '../../domain/usecases/get_appointment_services_usecase.dart';
 import '../../data/datasources/appointment_remote_datasource.dart';
@@ -41,6 +43,14 @@ final createAppointmentUseCaseProvider = Provider<CreateAppointmentUseCase>((ref
 
 final cancelAppointmentUseCaseProvider = Provider<CancelAppointmentUseCase>((ref) {
   return CancelAppointmentUseCase(ref.watch(appointmentRepositoryProvider));
+});
+
+final deleteAppointmentUseCaseProvider = Provider<DeleteAppointmentUseCase>((ref) {
+  return DeleteAppointmentUseCase(ref.watch(appointmentRepositoryProvider));
+});
+
+final deleteAppointmentsUseCaseProvider = Provider<DeleteAppointmentsUseCase>((ref) {
+  return DeleteAppointmentsUseCase(ref.watch(appointmentRepositoryProvider));
 });
 
 final getEmployeeAppointmentsUseCaseProvider = Provider<GetEmployeeAppointmentsUseCase>((ref) {
@@ -137,6 +147,30 @@ class AppointmentsNotifier extends AsyncNotifier<List<AppointmentEntity>> {
   Future<void> cancelBooking(String appointmentId) async {
     state = const AsyncValue.loading();
     final result = await ref.read(cancelAppointmentUseCaseProvider).execute(appointmentId);
+    result.fold(
+      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (_) {
+        ref.invalidateSelf();
+        ref.invalidate(servicesReportProvider);
+      },
+    );
+  }
+
+  Future<void> deleteBooking(String appointmentId) async {
+    state = const AsyncValue.loading();
+    final result = await ref.read(deleteAppointmentUseCaseProvider).execute(appointmentId);
+    result.fold(
+      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (_) {
+        ref.invalidateSelf();
+        ref.invalidate(servicesReportProvider);
+      },
+    );
+  }
+
+  Future<void> deleteMultipleBookings(List<String> ids) async {
+    state = const AsyncValue.loading();
+    final result = await ref.read(deleteAppointmentsUseCaseProvider).execute(ids);
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
       (_) {

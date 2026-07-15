@@ -174,7 +174,7 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
                           keyboardType: TextInputType.number,
                           prefixIcon: Icons.access_time_rounded,
                           validator: Validators.duration,
-                          hint: 'Ej: 15, 30, 45, 60',
+                          hint: 'Ej: 5, 10, 15, 20, 30',
                           textInputAction: TextInputAction.done,
                         ),
 

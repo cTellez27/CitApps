@@ -164,5 +164,29 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAppointment(String id) async {
+    try {
+      await remoteDataSource.deleteAppointment(id);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAppointments(List<String> ids) async {
+    try {
+      await remoteDataSource.deleteAppointments(ids);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 }
 

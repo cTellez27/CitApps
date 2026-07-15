@@ -42,5 +42,7 @@ abstract class AppointmentRepository {
   Future<Either<Failure, void>> updateAppointmentTotalPrice(String appointmentId, double totalPrice);
   Future<Either<Failure, void>> deleteExtraService(String appointmentId, String serviceId);
   Future<Either<Failure, void>> deleteExtraProduct(String appointmentId, String productId);
+  Future<Either<Failure, void>> deleteAppointment(String id);
+  Future<Either<Failure, void>> deleteAppointments(List<String> ids);
 }
 

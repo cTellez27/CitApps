@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CitApps (Debug)",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "CitApps (Run without Debugging)",
+      "request": "launch",
+      "type": "dart",
+      "noDebug": true
+    },
+    {
+      "name": "CitApps (Profile)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "CitApps (Release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
+}

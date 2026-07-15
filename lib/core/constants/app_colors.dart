@@ -19,8 +19,8 @@ abstract class AppColors {
   /// Superficies: Blanco (#FFFFFF)
   static const Color surface = Color(0xFFFFFFFF);
   
-  /// Color de Acento: Dorado Suave (#B78D3F)
-  static const Color accent = Color(0xFFB78D3F);
+  /// Color de Acento: Azul Real (#2563EB)
+  static const Color accent = Color(0xFF2563EB);
 
   // ── Text Colors ──
   static const Color textPrimary = Color(0xFF222222);
@@ -30,10 +30,10 @@ abstract class AppColors {
   static const Color success = Color(0xFF22C55E);
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFDC2626);
-  static const Color info = Color(0xFFB78D3F); // Gold accent as info/accent indicator
+  static const Color info = Color(0xFF2563EB); // Blue accent as info/accent indicator
 
   // ── Backward Compatibility Mappings (forces light premium style in both configurations) ──
-  static const Color primaryLight = Color(0xFFB78D3F); // Gold
+  static const Color primaryLight = Color(0xFF2563EB); // Blue
   static const Color primaryDark = Color(0xFF1F1F1F); // Carbon
 
   static const Color backgroundDark = Color(0xFFF2F3F5); // General grey background
@@ -54,8 +54,8 @@ abstract class AppColors {
   static const Color borderLight = Color(0xFFD1D5DB);
 
   static const Color statusPending = Color(0xFFF59E0B);
-  static const Color statusConfirmed = Color(0xFFB78D3F);
-  static const Color statusInProgress = Color(0xFFB78D3F);
+  static const Color statusConfirmed = Color(0xFF2563EB);
+  static const Color statusInProgress = Color(0xFF2563EB);
   static const Color statusCompleted = Color(0xFF22C55E);
   static const Color statusCancelled = Color(0xFFDC2626);
   static const Color statusNoShow = Color(0xFF6B7280);

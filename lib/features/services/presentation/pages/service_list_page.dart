@@ -26,7 +26,6 @@ class ServiceListPage extends ConsumerStatefulWidget {
 class _ServiceListPageState extends ConsumerState<ServiceListPage> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-  int? _durationFilter; // Filter in minutes
   bool _showInactive = false;
 
   @override
@@ -40,12 +39,9 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
       final matchesSearch = svc.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           (svc.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
 
-      final matchesDuration = _durationFilter == null ||
-          (_durationFilter == 60 ? svc.durationMinutes >= 60 : svc.durationMinutes == _durationFilter);
-
       final matchesStatus = _showInactive || svc.isActive;
 
-      return matchesSearch && matchesDuration && matchesStatus;
+      return matchesSearch && matchesStatus;
     }).toList();
   }
 
@@ -91,39 +87,6 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
                       _searchQuery = val;
                     });
                   },
-                ),
-                const SizedBox(height: AppSizes.sm),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSizes.xs),
-                        child: ChoiceChip(
-                          label: const Text('Todos'),
-                          selected: _durationFilter == null,
-                          onSelected: (selected) {
-                            if (selected) setState(() => _durationFilter = null);
-                          },
-                        ),
-                      ),
-                      ...[15, 30, 45, 60].map((mins) {
-                        final label = mins == 60 ? '1h o más' : '$mins min';
-                        return Padding(
-                          padding: const EdgeInsets.only(right: AppSizes.xs),
-                          child: ChoiceChip(
-                            label: Text(label),
-                            selected: _durationFilter == mins,
-                            onSelected: (selected) {
-                              setState(() {
-                                _durationFilter = selected ? mins : null;
-                              });
-                            },
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
                 ),
               ],
             ),

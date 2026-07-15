@@ -1,25 +1,23 @@
 package com.citapps.citapps
 
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.SharedPreferences
 import android.widget.RemoteViews
-import es.uxland.home_widget.HomeWidgetBackgroundIntent
-import es.uxland.home_widget.HomeWidgetLaunchIntent
-import es.uxland.home_widget.HomeWidgetPlugin
+import es.antonborri.home_widget.HomeWidgetBackgroundIntent
+import es.antonborri.home_widget.HomeWidgetLaunchIntent
+import es.antonborri.home_widget.HomeWidgetProvider
 
-class BarbershopWidgetProvider : AppWidgetProvider() {
+class BarbershopWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        appWidgetIds: IntArray,
+        widgetData: SharedPreferences
     ) {
         for (appWidgetId in appWidgetIds) {
-            // Get shared preferences via home_widget plugin helper
-            val widgetData = HomeWidgetPlugin.getData(context)
             val views = RemoteViews(context.packageName, R.layout.barbershop_widget).apply {
-                
-                // Get values passed from Flutter
+                // Get values passed from Flutter using widgetData (SharedPreferences)
                 val citasCount = widgetData.getInt("citas_count", 0)
                 val proximaCita = widgetData.getString("proxima_cita_time", "Sin citas pendientes")
 

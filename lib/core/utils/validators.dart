@@ -95,16 +95,16 @@ abstract class Validators {
     return null;
   }
 
-  /// Validates that duration is a multiple of 15 minutes.
+  /// Validates that duration is a multiple of 5 minutes.
   static String? duration(String? value) {
     final req = positiveNumber(value, 'La duración');
     if (req != null) return req;
     final minutes = int.tryParse(value!);
-    if (minutes == null || minutes < 15) {
-      return 'La duración mínima es 15 minutos';
+    if (minutes == null || minutes < 5) {
+      return 'La duración mínima es 5 minutos';
     }
-    if (minutes % 15 != 0) {
-      return 'La duración debe ser múltiplo de 15 minutos';
+    if (minutes % 5 != 0) {
+      return 'La duración debe ser múltiplo de 5 minutos';
     }
     return null;
   }
