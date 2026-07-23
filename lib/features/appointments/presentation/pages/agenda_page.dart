@@ -18,6 +18,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../employees/presentation/providers/employees_provider.dart';
 import '../../../employees/domain/entities/employee_entity.dart';
 import '../../../settings/presentation/providers/settings_provider.dart';
+import '../../../chatbot/presentation/widgets/chatbot_button.dart';
 import '../providers/appointments_provider.dart';
 import '../../domain/entities/appointment_entity.dart';
 
@@ -291,6 +292,7 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
             ? const Text('Agenda de Citas')
             : Text('${_selectedAppointmentIds.length} seleccionadas'),
         actions: [
+          const ChatbotIconButton(),
           if (isOwnerOrAdmin && _selectedAppointmentIds.isNotEmpty) ...[
             IconButton(
               icon: const Icon(Icons.delete_sweep_rounded, color: AppColors.error),
@@ -586,9 +588,17 @@ class _AgendaPageState extends ConsumerState<AgendaPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(RouteNames.schedule),
-        child: const Icon(Icons.add_rounded),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const ChatbotFloatingButton(),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'add_appointment_fab',
+            onPressed: () => context.push(RouteNames.schedule),
+            child: const Icon(Icons.add_rounded),
+          ),
+        ],
       ),
     );
   }

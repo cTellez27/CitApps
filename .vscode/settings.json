@@ -1,3 +1,4 @@
 {
-  "emulator.emulatorPathWindows": "C:\\Users\\Christian Tellez\\AppData\\Local\\Android\\Sdk\\emulator"
+  "emulator.emulatorPathWindows": "C:\\Users\\Christian Tellez\\AppData\\Local\\Android\\Sdk\\emulator",
+  "java.compile.nullAnalysis.mode": "automatic"
 }
